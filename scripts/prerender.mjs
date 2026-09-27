@@ -1,14 +1,25 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { render, pages } from "../.ssr/entry-server.js";
-import { siteConfig, escapeHtml, pageMetadata, sitemap, robots } from "./seo.mjs";
+import {
+  siteConfig,
+  escapeHtml,
+  pageMetadata,
+  sitemap,
+  robots,
+  analyticsMetadata,
+} from "./seo.mjs";
 const config = siteConfig();
+const analytics = analyticsMetadata();
 const template = await fs.readFile("dist/index.html", "utf8");
 for (const [key, page] of Object.entries(pages)) {
   const nested = key !== "home" && key !== "not-found";
   let html = template
     .replace(/<title>.*?<\/title>/, () => "<title>" + escapeHtml(page.title) + "</title>")
-    .replace("</head>", () => pageMetadata(config, key, page, pages.home) + "\n</head>")
+    .replace(
+      "</head>",
+      () => pageMetadata(config, key, page, pages.home) + analytics + "\n</head>",
+    )
     .replace(
       '<div id="root"></div>',
       () => '<div id="root" data-page="' + key + '">' + render(key) + "</div>",

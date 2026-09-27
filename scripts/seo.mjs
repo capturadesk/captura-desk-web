@@ -139,3 +139,12 @@ export function robots(config) {
       : "")
   );
 }
+
+export function analyticsMetadata(env = process.env) {
+  const id = (env.GA_MEASUREMENT_ID ?? "G-0G3QY0L6CZ").trim();
+  if (id && !/^G-[A-Z0-9]+$/.test(id))
+    throw new Error("GA_MEASUREMENT_ID must be a GA4 Measurement ID starting with G-.");
+  return id && env.SITE_INDEXABLE !== "false"
+    ? '<meta name="ga-measurement-id" content="' + id + '"/>'
+    : "";
+}

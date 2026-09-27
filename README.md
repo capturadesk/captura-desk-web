@@ -22,7 +22,7 @@ npm run preview
 
 The build creates seven HTML documents in `dist`: overview, getting started, download availability, changelog, privacy, support, and a 404 page. Content is pre-rendered at build time; no server-side runtime is required. JavaScript adds use-case tabs and the copy button. Navigation, FAQs, and core content work without JavaScript.
 
-Upload the contents of `dist` to a static host. Configure the host to serve directory `index.html` files and `404.html` for missing pages. This is a multi-page site; do not rewrite every request to the home page. Relative asset and navigation links support a root domain or a subdirectory. For subdirectory hosting, set `SITE_BASE_PATH` to that directory (for example `/captura-desk/`) before building so the custom 404 page also resolves its assets correctly. The default is `/`. Serve over HTTP(S), rather than opening HTML files directly from the filesystem. No deployment has been configured or performed.
+Upload the contents of `dist` to a static host. Configure the host to serve directory `index.html` files and `404.html` for missing pages. This is a multi-page site; do not rewrite every request to the home page. Relative asset and navigation links support a root domain or a subdirectory. For subdirectory hosting, set `SITE_BASE_PATH` to that directory (for example `/captura-desk/`) before building so the custom 404 page also resolves its assets correctly. The default is `/`. Serve over HTTP(S), rather than opening HTML files directly from the filesystem. Production is manually hosted on SiteGround at https://capturadesk.com; GitHub pushes do not deploy it.
 
 ## Project map
 
@@ -55,7 +55,7 @@ npm run test:e2e
 
 ## Content and release maintenance
 
-The site currently describes the development build, not a published installer. There is no pricing, signup flow, account system, analytics, or commercial offering. AI API billing is separate and is explained in the site content.
+The site currently describes the development build, not a published installer. There is no pricing, signup flow, account system, or commercial offering. Optional Google Analytics is configured and only loads after visitor consent. AI API billing is separate and is explained in the site content.
 
 When a Windows installer is available, replace the availability copy and add a link to the actual published release in `src/App.tsx`; do not add a placeholder download URL. Update the changelog from the desktop app's release notes. Keep privacy information aligned with the app's real data handling and review host-specific logging information before publishing.
 
@@ -108,3 +108,25 @@ npm run build
 Keep setup instructions, screenshots, availability, and privacy details accurate as the desktop app changes. Add useful examples based on real sample workflows, with the exported result and clear explanations. Avoid generating near-duplicate keyword pages.
 
 References: [Google AI search guidance](https://developers.google.com/search/docs/fundamentals/ai-optimization-guide), [sitemaps](https://developers.google.com/search/docs/crawling-indexing/sitemaps/build-sitemap), [site names](https://developers.google.com/search/docs/appearance/site-names), and [software app structured data](https://developers.google.com/search/docs/appearance/structured-data/software-app).
+
+## Optional Google Analytics 4
+
+The default production GA4 Measurement ID is **G-0G3QY0L6CZ**, configured in scripts/seo.mjs. It is public configuration, not a secret or API key. Normal `npm run build` builds include it; no environment setup is required.
+
+To override the Measurement ID for a different property in PowerShell:
+
+```powershell
+$env:GA_MEASUREMENT_ID = 'G-YOURACTUALID'
+npm run build
+Remove-Item Env:GA_MEASUREMENT_ID
+```
+
+The override applies only to builds in that shell; removing it restores the default ID. Upload the contents of dist to SiteGround, including the updated privacy page and all assets. For builds without analytics, set SITE_INDEXABLE=false (staging) or supply an explicitly empty GA_MEASUREMENT_ID in the build environment. Staging disables both analytics and indexing. The ordinary Vite dev server also has no injected analytics metadata; use a configured production build to preview it.
+
+Visitors are offered equally styled Allow analytics and Decline analytics controls. This implementation blocks Google's script and requests until acceptance (basic consent mode). Advertising consent remains denied and Google signals/ad personalization are disabled in the tag configuration. Footer Cookie settings lets visitors reopen the choice. Choices are stored in localStorage for up to 90 days; unavailable storage means the choice lasts only for the current page. Withdrawal clears accessible _ga cookies and reloads the page to remove the library. Other open tabs reload when the stored choice changes. Previously collected Google data is not deleted by withdrawing consent.
+
+For the initial page-view-only rollout, disable **Enhanced measurement** in the GA4 Web stream settings and leave Google signals and user-provided data collection disabled. The tag sends one default page view per full-page load after acceptance. The integration strips query strings and fragments from its page location and referrer. Enabling automatic events later requires reviewing their payloads and updating the privacy notice; third-party defaults can collect additional details. Choose and document the desired GA4 data-retention setting in Admin before launch.
+
+After deployment, accept analytics in your own browser and check GA4 Realtime. Check a fresh browser context: no requests to googletagmanager.com or google-analytics.com should occur before acceptance or after decline. Ad blockers may prevent tracking after acceptance. Browser tests mock Google's script, so they test consent behavior without sending real traffic; they do not verify receipt in your GA4 account. Update the public privacy information to match your actual Analytics account settings.
+
+Implementation: src/lib/analytics.ts, src/components/analytics-consent.tsx, and the GA_MEASUREMENT_ID metadata injected by scripts/prerender.mjs. See [Google's basic consent mode guidance](https://developers.google.com/tag-platform/security/concepts/consent-mode).

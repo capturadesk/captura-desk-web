@@ -1,4 +1,5 @@
-﻿import { useState, type ReactNode } from "react";
+import { AnalyticsConsent } from "./components/analytics-consent";
+import { useState, type ReactNode } from "react";
 import {
   ArrowUpRight,
   ArrowRight,
@@ -817,10 +818,29 @@ export function App({ page }: { page: Page }) {
               </p>
               <h2>This website</h2>
               <p>
-                This website includes no analytics, advertising scripts, account system,
-                or signup forms. Assets are served locally by the site. The hosting
-                service may process ordinary request logs according to its own policies.
-                GitHub and AI provider websites have their own data practices.
+                This website offers optional Google Analytics when configured. Google
+                Analytics loads only after you choose Allow analytics. It helps us
+                understand page visits and usage, using cookies and sending data to
+                Google. Advertising consent stays disabled. This measures website visits,
+                not your desktop recordings, documents, or API keys.
+              </p>
+              <p>
+                You can decline analytics or change your choice using Cookie settings in
+                the footer when analytics is enabled. We remember your choice in this
+                browser for up to 90 days. Withdrawing consent stops future collection and
+                clears accessible Google Analytics cookies; it does not delete data
+                already sent to Google. Without JavaScript, analytics does not load.
+              </p>
+              <p>
+                We remove query strings and fragments from the page address and referrer
+                supplied by this integration. Google may also process technical
+                information such as browser, device, and network information. See{" "}
+                <a href="https://policies.google.com/privacy">Google's privacy policy</a>.
+              </p>
+              <p>
+                The site has no advertising tags, account system, or signup forms.
+                SiteGround may process request logs under its own policies. GitHub and AI
+                provider websites have their own data practices.
               </p>
               <h2>Questions or concerns</h2>
               <p>
@@ -956,6 +976,7 @@ export function App({ page }: { page: Page }) {
         <div className="container footer-bottom">
           <span>Captura Desk</span>
           <span>A desktop tool for sharing what you know.</span>
+          <AnalyticsConsent privacyHref={href("privacy")} />
         </div>
       </footer>
     </>

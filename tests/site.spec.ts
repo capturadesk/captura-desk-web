@@ -1,5 +1,13 @@
 ﻿import { test, expect } from "@playwright/test";
 import fs from "node:fs/promises";
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() =>
+    localStorage.setItem(
+      "captura-analytics-consent-v1",
+      JSON.stringify({ value: "declined", at: Date.now() }),
+    ),
+  );
+});
 const routes = [
   "/",
   "/getting-started/",

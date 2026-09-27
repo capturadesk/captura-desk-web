@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { siteConfig, pageMetadata, sitemap, robots } from "./seo.mjs";
+import { siteConfig, pageMetadata, sitemap, robots, analyticsMetadata } from "./seo.mjs";
 const home = {
   path: "",
   title: "Captura Desk",
@@ -76,4 +76,22 @@ test("JSON-LD describes the app honestly and cannot close its script element", (
   assert.equal(app.operatingSystem, "Windows");
   for (const key of ["offers", "aggregateRating", "review", "downloadUrl"])
     assert.ok(!(key in app));
+});
+
+test("analytics requires a valid ID and stays disabled on staging", () => {
+  assert.equal(
+    analyticsMetadata({}),
+    '<meta name="ga-measurement-id" content="G-0G3QY0L6CZ"/>',
+  );
+  assert.equal(analyticsMetadata({ GA_MEASUREMENT_ID: "" }), "");
+  assert.equal(analyticsMetadata({ SITE_INDEXABLE: "false" }), "");
+  assert.equal(
+    analyticsMetadata({ GA_MEASUREMENT_ID: "G-TEST12345", SITE_INDEXABLE: "false" }),
+    "",
+  );
+  assert.equal(
+    analyticsMetadata({ GA_MEASUREMENT_ID: "G-TEST12345" }),
+    '<meta name="ga-measurement-id" content="G-TEST12345"/>',
+  );
+  assert.throws(() => analyticsMetadata({ GA_MEASUREMENT_ID: 'bad"><script>' }));
 });
